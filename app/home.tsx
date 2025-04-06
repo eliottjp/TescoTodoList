@@ -1,5 +1,4 @@
-// app/home.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -9,14 +8,20 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  updateDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "./src/utils/firebase";
 import { Task } from "./src/types/models";
 import { useAuth } from "./src/context/AuthContext";
 import { useRouter, useNavigation } from "expo-router";
 import { FAB } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
-import { useLayoutEffect } from "react";
 
 export default function HomeScreen() {
   const { staff, logout } = useAuth();
@@ -24,7 +29,6 @@ export default function HomeScreen() {
   const [showAllDepartments, setShowAllDepartments] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
   const navigation = useNavigation();
 
   useLayoutEffect(() => {
@@ -43,26 +47,24 @@ export default function HomeScreen() {
       });
     }
   }, [staff]);
+
   useEffect(() => {
     if (!staff) return;
 
-    const fetchTasks = async () => {
-      setLoading(true);
-      const snapshot = await getDocs(collection(db, "tasks"));
-      const allTasks: Task[] = snapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as Task)
-      );
-      const visibleTasks = allTasks.filter((task) => !task.completed);
-      setTasks(visibleTasks);
+    const q = query(collection(db, "tasks"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const allTasks: Task[] = snapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() } as Task))
+        .filter((task) => !task.completed);
+      setTasks(allTasks);
       setLoading(false);
-    };
+    });
 
-    fetchTasks();
+    return unsubscribe;
   }, [staff]);
 
   const markComplete = async (taskId: string) => {
     await updateDoc(doc(db, "tasks", taskId), { completed: true });
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
   };
 
   const departmentTasks = tasks.filter(
@@ -74,10 +76,9 @@ export default function HomeScreen() {
   const displayedTasks = showAllDepartments ? tasks : departmentTasks;
 
   const renderTask = (task: Task) => {
-    const isMine = task.assignedTo === staff?.id;
     return (
       <TouchableOpacity
-        style={[styles.card, isMine && styles.highlight]}
+        style={[styles.card]}
         onPress={() => router.push(`/task/${task.id}`)}
       >
         {task.imageUrl && (
@@ -85,7 +86,7 @@ export default function HomeScreen() {
         )}
         <View style={{ flex: 1 }}>
           <Text style={styles.title}>{task.title}</Text>
-          <Text style={styles.meta}>Assigned To: {task.assignedTo}</Text>
+          <Text style={styles.meta}>Dept: {task.department}</Text>
         </View>
         <TouchableOpacity
           style={styles.checkbox}
@@ -177,11 +178,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     alignItems: "center",
-  },
-  highlight: {
-    borderLeftWidth: 4,
-    borderLeftColor: "#ee1c2e",
-    backgroundColor: "#fff1f3",
   },
   thumbnail: {
     width: 50,

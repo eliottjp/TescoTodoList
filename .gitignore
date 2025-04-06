@@ -36,3 +36,5 @@ yarn-error.*
 
 app-example
 .qodo
+
+.vercel

@@ -1,5 +1,4 @@
-// app/create.tsx
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -12,12 +11,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  serverTimestamp,
-} from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "./src/utils/firebase";
 import { Picker } from "@react-native-picker/picker";
@@ -26,12 +20,8 @@ export default function CreateTask() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [department, setDepartment] = useState("");
-  const [assignedTo, setAssignedTo] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [staffList, setStaffList] = useState<{ id: string; name: string }[]>(
-    []
-  );
 
   const departments = [
     "Cleaning",
@@ -40,19 +30,6 @@ export default function CreateTask() {
     "Security",
     "Admin",
   ];
-
-  useEffect(() => {
-    const fetchStaff = async () => {
-      const snapshot = await getDocs(collection(db, "staff"));
-      const staffData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        name: doc.data().name,
-      }));
-      setStaffList(staffData);
-    };
-
-    fetchStaff();
-  }, []);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -66,8 +43,8 @@ export default function CreateTask() {
   };
 
   const handleSubmit = async () => {
-    if (!title || !department || !assignedTo) {
-      Alert.alert("Missing Fields", "Please complete all required fields.");
+    if (!title || !department) {
+      Alert.alert("Missing Fields", "Please enter a title and department.");
       return;
     }
 
@@ -87,7 +64,6 @@ export default function CreateTask() {
         title,
         description,
         department,
-        assignedTo,
         completed: false,
         imageUrl,
         createdAt: serverTimestamp(),
@@ -97,7 +73,6 @@ export default function CreateTask() {
       setTitle("");
       setDescription("");
       setDepartment("");
-      setAssignedTo("");
       setImage(null);
     } catch (error) {
       Alert.alert("Error", "Something went wrong.");
@@ -140,20 +115,6 @@ export default function CreateTask() {
           <Picker.Item label="Select Department..." value="" />
           {departments.map((dep) => (
             <Picker.Item key={dep} label={dep} value={dep} />
-          ))}
-        </Picker>
-      </View>
-
-      <Text style={styles.label}>Assign To *</Text>
-      <View style={styles.pickerWrapper}>
-        <Picker
-          selectedValue={assignedTo}
-          onValueChange={setAssignedTo}
-          style={styles.picker}
-        >
-          <Picker.Item label="Select Staff..." value="" />
-          {staffList.map((staff) => (
-            <Picker.Item key={staff.id} label={staff.name} value={staff.id} />
           ))}
         </Picker>
       </View>
