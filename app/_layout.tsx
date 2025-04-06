@@ -4,27 +4,39 @@ import { AuthProvider } from "./src/context/AuthContext";
 import { Provider as PaperProvider } from "react-native-paper";
 import Toast from "react-native-toast-message";
 import { useFonts } from "expo-font";
-import { Ionicons } from "@expo/vector-icons";
+import { useEffect } from "react";
 import {
   Poppins_400Regular,
   Poppins_600SemiBold,
 } from "@expo-google-fonts/poppins";
-import { Text, TouchableOpacity } from "react-native";
+import { Platform } from "react-native";
 
 export default function Layout() {
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
   });
-  if (!fontsLoaded) return null;
+
+  // On web, inject Google Fonts if not loaded properly
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      const link = document.createElement("link");
+      link.href =
+        "https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap";
+      link.rel = "stylesheet";
+      document.head.appendChild(link);
+    }
+  }, []);
+
+  if (!fontsLoaded && Platform.OS !== "web") return null;
 
   return (
     <AuthProvider>
       <PaperProvider>
         <Stack>
-          {/* Default for all pages */}
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="login" options={{ headerShown: false }} />
+
           <Stack.Screen
             name="home"
             options={{
@@ -32,7 +44,8 @@ export default function Layout() {
               headerStyle: { backgroundColor: "#ee1c2e" },
               headerTintColor: "#fff",
               headerTitleStyle: {
-                fontFamily: "Poppins_600SemiBold",
+                fontFamily:
+                  Platform.OS === "web" ? "Poppins" : "Poppins_600SemiBold",
                 fontSize: 18,
               },
             }}
@@ -44,7 +57,8 @@ export default function Layout() {
               headerStyle: { backgroundColor: "#ee1c2e" },
               headerTintColor: "#fff",
               headerTitleStyle: {
-                fontFamily: "Poppins_600SemiBold",
+                fontFamily:
+                  Platform.OS === "web" ? "Poppins" : "Poppins_600SemiBold",
                 fontSize: 18,
               },
             }}
@@ -55,6 +69,10 @@ export default function Layout() {
               title: "Task Details",
               headerStyle: { backgroundColor: "#ee1c2e" },
               headerTintColor: "#fff",
+              headerTitleStyle: {
+                fontFamily:
+                  Platform.OS === "web" ? "Poppins" : "Poppins_600SemiBold",
+              },
             }}
           />
           <Stack.Screen
@@ -63,6 +81,10 @@ export default function Layout() {
               title: "Add Staff",
               headerStyle: { backgroundColor: "#00539f" },
               headerTintColor: "#fff",
+              headerTitleStyle: {
+                fontFamily:
+                  Platform.OS === "web" ? "Poppins" : "Poppins_600SemiBold",
+              },
             }}
           />
           <Stack.Screen
@@ -71,6 +93,10 @@ export default function Layout() {
               title: "Completed Tasks",
               headerStyle: { backgroundColor: "#00539f" },
               headerTintColor: "#fff",
+              headerTitleStyle: {
+                fontFamily:
+                  Platform.OS === "web" ? "Poppins" : "Poppins_600SemiBold",
+              },
             }}
           />
         </Stack>
