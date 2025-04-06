@@ -1079,6 +1079,11 @@
   resolved "https://registry.yarnpkg.com/@expo/metro-runtime/-/metro-runtime-4.0.1.tgz#ccc74b32bd48eb64c34a4ff29690204cc11c6e7a"
   integrity sha512-CRpbLvdJ1T42S+lrYa1iZp1KfDeBp4oeZOK3hdpiS5n0vR0nhD6sC1gGF0sTboCTp64tLteikz5Y3j53dvgOIw==
 
+"@expo/next-adapter@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@expo/next-adapter/-/next-adapter-6.0.0.tgz#bb9f165c953cd8497a64c769a566e8603fb881bd"
+  integrity sha512-hFAcH6OLIOkLeD0oCoozqcTAxcPK1wYsZO40NSWA+Bi25hF9h/Az6SlLSNOtYv+tyCF5iAHT/rwWsDNlUyxDmg==
+
 "@expo/osascript@^2.1.6":
   version "2.1.6"
   resolved "https://registry.yarnpkg.com/@expo/osascript/-/osascript-2.1.6.tgz#d20e764526310b0d393275f904e20fbff13d18f9"
