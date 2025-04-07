@@ -1,4 +1,3 @@
-// app/index.tsx
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "./src/context/AuthContext";
@@ -22,7 +21,7 @@ export default function Index() {
         }
       }
       setChecking(false);
-    }, 50); // delay slightly to avoid navigation before layout mounts
+    }, 50);
 
     return () => clearTimeout(timeout);
   }, [staff]);

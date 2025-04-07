@@ -89,7 +89,6 @@ export default function TaskDetail() {
         </View>
       </ScrollView>
 
-      {/* 🔍 Fullscreen Preview Modal */}
       <Modal visible={showPreview} transparent={true} animationType="fade">
         <Pressable
           style={styles.fullscreenOverlay}

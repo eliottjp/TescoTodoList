@@ -1,11 +1,9 @@
-// app/login.tsx
 import {
   View,
   Text,
   Image,
   TextInput,
   StyleSheet,
-  Alert,
   TouchableOpacity,
 } from "react-native";
 import { useState } from "react";
@@ -61,6 +59,17 @@ export default function LoginScreen() {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
+      <Text
+        style={{
+          fontFamily: "Poppins_600SemiBold",
+          fontSize: 14,
+          color: "#f12121",
+          textAlign: "center",
+          marginTop: 20,
+        }}
+      >
+        Built by EJP Designs
+      </Text>
     </View>
   );
 }
@@ -114,9 +123,9 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_600SemiBold",
   },
   subtitle: {
-    fontSize: 20, // slightly smaller than main title
-    fontFamily: "Poppins_600SemiBold", // keeps header feel
-    color: "#333", // bold but not harsh
+    fontSize: 20,
+    fontFamily: "Poppins_600SemiBold",
+    color: "#333",
     textAlign: "center",
     marginBottom: 16,
   },

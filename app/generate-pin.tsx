@@ -13,7 +13,6 @@ import uuid from "react-native-uuid";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "./src/utils/firebase";
 
-// Static list of departments
 const departments = [
   "Frozen",
   "Grocery",

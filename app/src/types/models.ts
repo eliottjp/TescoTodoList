@@ -4,8 +4,8 @@ export type Staff = {
   id: string;
   name: string;
   departments: string[];
-  pin: string; // 6-digit login
-  role: "manager" | "staff"; // admin or staff
+  pin: string;
+  role: "manager" | "staff";
 };
 
 export type Task = {
@@ -13,7 +13,6 @@ export type Task = {
   title: string;
   description: string;
   imageUrl?: string;
-  assignedTo: string; // staff ID
   department: string;
   departments: string[];
   completed: boolean;

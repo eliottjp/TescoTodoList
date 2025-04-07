@@ -8,11 +8,18 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  Timestamp,
+  where,
+} from "firebase/firestore";
 import { db } from "./src/utils/firebase";
 import { Task } from "./src/types/models";
 import { useRouter } from "expo-router";
-import dayjs from "dayjs"; // make sure you install dayjs or use native Date
+import dayjs from "dayjs";
+import { formatDistanceToNow } from "date-fns";
 
 export default function CompletedTasks() {
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
@@ -31,7 +38,7 @@ export default function CompletedTasks() {
       const tasks = snapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() } as Task))
         .filter(
-          (task) => task.completedAt && task.completedAt.toDate() >= twoWeeksAgo // Filter out older than 2 weeks
+          (task) => task.completedAt && task.completedAt.toDate() >= twoWeeksAgo
         );
 
       setCompletedTasks(tasks);
@@ -49,6 +56,11 @@ export default function CompletedTasks() {
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{task.title}</Text>
         <Text style={styles.meta}>Department: {task.department}</Text>
+        <Text style={styles.meta}>
+          {task.createdAt
+            ? formatDistanceToNow(task.createdAt.toDate(), { addSuffix: true })
+            : "Unknown time"}
+        </Text>
       </View>
     </View>
   );

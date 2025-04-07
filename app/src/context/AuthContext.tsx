@@ -1,4 +1,3 @@
-// src/context/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -58,7 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const loginPayload = {
       staff: user,
-      loginTime: Date.now(), // save timestamp
+      loginTime: Date.now(),
     };
 
     setStaff(user);

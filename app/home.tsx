@@ -1,4 +1,5 @@
 import { useEffect, useState, useLayoutEffect, useRef } from "react";
+import Footer from "./components/Footer";
 import {
   View,
   Text,
@@ -7,7 +8,6 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  ToastAndroid,
 } from "react-native";
 import {
   collection,
@@ -24,6 +24,7 @@ import { useRouter, useNavigation } from "expo-router";
 import { FAB } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
+import { formatDistanceToNow } from "date-fns";
 
 export default function HomeScreen() {
   const { staff, logout } = useAuth();
@@ -109,6 +110,11 @@ export default function HomeScreen() {
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{task.title}</Text>
         <Text style={styles.meta}>Dept: {task.department}</Text>
+        <Text style={styles.meta}>
+          {task.createdAt
+            ? formatDistanceToNow(task.createdAt.toDate(), { addSuffix: true })
+            : "Unknown time"}
+        </Text>
       </View>
       <TouchableOpacity
         style={styles.checkbox}
