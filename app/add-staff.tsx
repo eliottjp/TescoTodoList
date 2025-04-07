@@ -21,11 +21,16 @@ export default function AddStaffPage() {
   const router = useRouter();
 
   const departments = [
-    "Cleaning",
-    "Maintenance",
-    "Front Desk",
-    "Security",
-    "Admin",
+    "Frozen",
+    "Grocery",
+    "BWS",
+    "GM & HB",
+    "Dairy, Meat & Poultry",
+    "Services",
+    "Produce & Bakery",
+    "Bread & Cakes",
+    "Dot Com",
+    "Clothing",
   ];
 
   const handleSubmit = async () => {
@@ -44,7 +49,7 @@ export default function AddStaffPage() {
         pin,
         role,
       });
-      Alert.alert("Staff Added", `${name} has been added.`);
+      Alert.alert("Colleague Added", `${name} has been added.`);
       setName("");
       setDepartment("");
       setPin("");
@@ -58,12 +63,12 @@ export default function AddStaffPage() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Add New Staff</Text>
+      <Text style={styles.title}>Add New Colleague</Text>
 
       <Text style={styles.label}>Name *</Text>
       <TextInput
         style={styles.input}
-        placeholder="Staff Name"
+        placeholder="Colleague Name"
         value={name}
         onChangeText={setName}
       />
@@ -99,13 +104,13 @@ export default function AddStaffPage() {
           onValueChange={setRole}
           style={styles.picker}
         >
-          <Picker.Item label="Staff" value="staff" />
+          <Picker.Item label="Colleague" value="staff" />
           <Picker.Item label="Manager" value="manager" />
         </Picker>
       </View>
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Add Staff</Text>
+        <Text style={styles.buttonText}>Add Colleague</Text>
       </TouchableOpacity>
     </ScrollView>
   );

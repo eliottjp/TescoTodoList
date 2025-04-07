@@ -37,9 +37,9 @@ export default function HomeScreen() {
         headerRight: () => (
           <View style={{ flexDirection: "row", gap: 12, marginRight: 12 }}>
             <TouchableOpacity onPress={() => router.push("/completed")}>
-              <Ionicons name="eye-outline" size={24} color="#fff" />
+              <Ionicons name="checkmark-done-outline" size={24} color="#fff" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push("/add-staff")}>
+            <TouchableOpacity onPress={() => router.push("/generate-pin")}>
               <Ionicons name="person-add-outline" size={24} color="#fff" />
             </TouchableOpacity>
           </View>

@@ -2,6 +2,7 @@
 import {
   View,
   Text,
+  Image,
   TextInput,
   StyleSheet,
   Alert,
@@ -27,7 +28,20 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Staff Login</Text>
+      <Image
+        source={require("../assets/images/logo.png")}
+        style={{
+          width: 300,
+          height: 200,
+          resizeMode: "contain",
+          alignSelf: "center",
+          marginBottom: 0,
+        }}
+      />
+
+      <Text style={styles.title2}>Coventry Arena Store</Text>
+      <Text style={styles.title}>Next Steps</Text>
+      <Text style={styles.subtitle}>Colleague Login</Text>
 
       <TextInput
         style={styles.input}
@@ -54,11 +68,18 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     color: "#00539f",
     textAlign: "center",
     fontFamily: "Poppins_600SemiBold",
     marginBottom: 30,
+  },
+  title2: {
+    fontSize: 28,
+    color: "#00539f",
+    textAlign: "center",
+    fontFamily: "Poppins_600SemiBold",
+    marginBottom: 10,
   },
   input: {
     backgroundColor: "#fff",
@@ -86,5 +107,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontFamily: "Poppins_600SemiBold",
+  },
+  subtitle: {
+    fontSize: 20, // slightly smaller than main title
+    fontFamily: "Poppins_600SemiBold", // keeps header feel
+    color: "#333", // bold but not harsh
+    textAlign: "center",
+    marginBottom: 16,
   },
 });

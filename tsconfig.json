@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "jsx": "react-native",
+    "jsx": "preserve",
     "target": "esnext",
     "module": "esnext",
     "lib": [
@@ -15,13 +15,18 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "extends": "expo/tsconfig.base",
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    ".next/types/**/*.ts"
   ]
 }

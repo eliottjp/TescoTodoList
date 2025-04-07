@@ -3,6 +3,7 @@ export type Staff = {
   name: string;
   department: string;
   pin: string; // 6-digit login
+  role: "manager" | "staff"; // admin or staff
 };
 
 export type Task = {

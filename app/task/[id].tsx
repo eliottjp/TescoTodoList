@@ -1,4 +1,3 @@
-// app/task/[id].tsx
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -9,6 +8,8 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
+  Modal,
+  Pressable,
 } from "react-native";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "./../src/utils/firebase";
@@ -19,6 +20,7 @@ export default function TaskDetail() {
   const router = useRouter();
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     if (!id || typeof id !== "string") return;
@@ -43,51 +45,63 @@ export default function TaskDetail() {
   if (!task) return <Text style={{ padding: 20 }}>Task not found.</Text>;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {task.imageUrl && (
-        <Image source={{ uri: task.imageUrl }} style={styles.image} />
-      )}
+    <>
+      <ScrollView contentContainerStyle={styles.container}>
+        {task.imageUrl && (
+          <TouchableOpacity onPress={() => setShowPreview(true)}>
+            <Image source={{ uri: task.imageUrl }} style={styles.image} />
+          </TouchableOpacity>
+        )}
 
-      <View style={styles.card}>
-        <Text style={styles.title}>{task.title}</Text>
+        <View style={styles.card}>
+          <Text style={styles.title}>{task.title}</Text>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>📋 Description:</Text>
-          <Text style={styles.text}>
-            {task.description || "No description provided."}
-          </Text>
-        </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>📋 Description:</Text>
+            <Text style={styles.text}>
+              {task.description || "No description provided."}
+            </Text>
+          </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>👤 Assigned To:</Text>
-          <Text style={styles.text}>{task.assignedTo}</Text>
-        </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>🏢 Department:</Text>
+            <Text style={styles.text}>{task.department}</Text>
+          </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>🏢 Department:</Text>
-          <Text style={styles.text}>{task.department}</Text>
-        </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>📌 Status:</Text>
+            <Text
+              style={[
+                styles.text,
+                task.completed ? styles.complete : styles.inProgress,
+              ]}
+            >
+              {task.completed ? "✅ Completed" : "🕒 In Progress"}
+            </Text>
+          </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>📌 Status:</Text>
-          <Text
-            style={[
-              styles.text,
-              task.completed ? styles.complete : styles.inProgress,
-            ]}
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
           >
-            {task.completed ? "✅ Completed" : "🕒 In Progress"}
-          </Text>
+            <Text style={styles.backText}>← Back</Text>
+          </TouchableOpacity>
         </View>
+      </ScrollView>
 
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
+      {/* 🔍 Fullscreen Preview Modal */}
+      <Modal visible={showPreview} transparent={true} animationType="fade">
+        <Pressable
+          style={styles.fullscreenOverlay}
+          onPress={() => setShowPreview(false)}
         >
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <Image
+            source={{ uri: task.imageUrl }}
+            style={styles.fullscreenImage}
+          />
+        </Pressable>
+      </Modal>
+    </>
   );
 }
 
@@ -151,5 +165,17 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontFamily: "Poppins_600SemiBold",
     fontSize: 14,
+  },
+  fullscreenOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fullscreenImage: {
+    width: "90%",
+    height: "80%",
+    resizeMode: "contain",
+    borderRadius: 12,
   },
 });

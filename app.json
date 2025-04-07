@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "tesco",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -19,8 +19,12 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "export",
-      "favicon": "./assets/favicon.png"
+      "output": "static",
+      "favicon": "./assets/favicon.png",
+      "meta": {
+        "viewport": "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
+        "themeColor": "#ee1c2e"
+      }
     },
     "plugins": [
       "expo-router",
@@ -37,7 +41,16 @@
       "expo-font"
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "exportPathMap": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "bcbc0114-9276-4619-b5fc-82289a540096"
+      }
     }
   }
 }

@@ -24,11 +24,16 @@ export default function CreateTask() {
   const [uploading, setUploading] = useState(false);
 
   const departments = [
-    "Cleaning",
-    "Maintenance",
-    "Front Desk",
-    "Security",
-    "Admin",
+    "Frozen",
+    "Grocery",
+    "BWS",
+    "GM & HB",
+    "Dairy, Meat & Poultry",
+    "Services",
+    "Produce & Bakery",
+    "Bread & Cakes",
+    "Dot Com",
+    "Clothing",
   ];
 
   const pickImage = async () => {
