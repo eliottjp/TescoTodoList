@@ -23,7 +23,8 @@
       "favicon": "./assets/favicon.png",
       "meta": {
         "viewport": "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
-        "themeColor": "#ee1c2e"
+        "name": "Tesco Todo App",
+        "themeColor": "#00539f"
       }
     },
     "plugins": [
