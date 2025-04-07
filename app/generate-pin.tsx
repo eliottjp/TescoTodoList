@@ -47,7 +47,7 @@ export default function GeneratePinLink() {
       createdAt: serverTimestamp(),
     });
 
-    setLink(`https://tesco.expo.app/setup?token=${token}`);
+    setLink(`https://tesco-three.vercel.app/setup?token=${token}`);
   };
 
   const handleCopy = async () => {
