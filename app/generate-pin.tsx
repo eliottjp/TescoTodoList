@@ -8,12 +8,12 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import * as Clipboard from "expo-clipboard";
 import uuid from "react-native-uuid";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "./src/utils/firebase";
 
+// Static list of departments
 const departments = [
   "Frozen",
   "Grocery",
@@ -29,12 +29,23 @@ const departments = [
 
 export default function GeneratePinLink() {
   const [name, setName] = useState("");
-  const [department, setDepartment] = useState("");
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [link, setLink] = useState("");
 
+  const toggleDepartment = (department: string) => {
+    setSelectedDepartments((prev) =>
+      prev.includes(department)
+        ? prev.filter((d) => d !== department)
+        : [...prev, department]
+    );
+  };
+
   const handleGenerate = async () => {
-    if (!name || !department) {
-      Alert.alert("Missing Info", "Please enter name and department.");
+    if (!name || selectedDepartments.length === 0) {
+      Alert.alert(
+        "Missing Info",
+        "Please enter name and at least one department."
+      );
       return;
     }
 
@@ -42,7 +53,7 @@ export default function GeneratePinLink() {
 
     await addDoc(collection(db, "pendingPins"), {
       name,
-      department,
+      departments: selectedDepartments,
       token,
       createdAt: serverTimestamp(),
     });
@@ -68,21 +79,34 @@ export default function GeneratePinLink() {
         placeholderTextColor="#999"
       />
 
-      <Text style={styles.label}>Department</Text>
-      <View style={styles.pickerWrapper}>
-        <Picker
-          selectedValue={department}
-          onValueChange={setDepartment}
-          style={styles.picker}
-        >
-          <Picker.Item label="Select Department..." value="" />
-          {departments.map((dep) => (
-            <Picker.Item key={dep} label={dep} value={dep} />
-          ))}
-        </Picker>
+      <Text style={styles.label}>Departments</Text>
+      <View style={styles.multiSelectBox}>
+        {departments.map((dep) => {
+          const selected = selectedDepartments.includes(dep);
+          return (
+            <TouchableOpacity
+              key={dep}
+              style={[styles.tag, selected && styles.tagSelected]}
+              onPress={() => toggleDepartment(dep)}
+            >
+              <Text
+                style={[styles.tagText, selected && styles.tagTextSelected]}
+              >
+                {dep}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
-      <TouchableOpacity style={styles.generateButton} onPress={handleGenerate}>
+      <TouchableOpacity
+        style={[
+          styles.generateButton,
+          (!name || selectedDepartments.length === 0) && { opacity: 0.6 },
+        ]}
+        disabled={!name || selectedDepartments.length === 0}
+        onPress={handleGenerate}
+      >
         <Text style={styles.generateText}>Generate Link</Text>
       </TouchableOpacity>
 
@@ -130,17 +154,34 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_400Regular",
     backgroundColor: "#fff",
   },
-  pickerWrapper: {
+  multiSelectBox: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 20,
+  },
+  tag: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 10,
-    overflow: "hidden",
+    borderRadius: 20,
     backgroundColor: "#fff",
-    marginBottom: 16,
+    marginRight: 8,
+    marginBottom: 8,
   },
-  picker: {
-    height: 50,
+  tagSelected: {
+    backgroundColor: "#00539f",
+    borderColor: "#00539f",
+  },
+  tagText: {
     fontFamily: "Poppins_400Regular",
+    fontSize: 14,
+    color: "#444",
+  },
+  tagTextSelected: {
+    color: "#fff",
+    fontWeight: "600",
   },
   generateButton: {
     backgroundColor: "#ee1c2e",

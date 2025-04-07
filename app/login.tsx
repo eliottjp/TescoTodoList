@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "./src/context/AuthContext";
+import Toast from "react-native-toast-message";
 
 export default function LoginScreen() {
   const [pin, setPin] = useState("");
@@ -22,7 +23,11 @@ export default function LoginScreen() {
     if (success) {
       router.replace("/home");
     } else {
-      Alert.alert("Invalid PIN", "Please try again.");
+      Toast.show({
+        type: "error",
+        text1: "Invalid PIN",
+        text2: "Please try again.",
+      });
     }
   };
 

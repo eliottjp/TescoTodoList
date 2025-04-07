@@ -14,6 +14,7 @@ import * as ImagePicker from "expo-image-picker";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "./src/utils/firebase";
+import { useRouter } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
 
 export default function CreateTask() {
@@ -22,6 +23,7 @@ export default function CreateTask() {
   const [department, setDepartment] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const router = useRouter();
 
   const departments = [
     "Frozen",
@@ -75,6 +77,7 @@ export default function CreateTask() {
       });
 
       Alert.alert("✅ Task Created", "Task has been added successfully.");
+      router.replace("/home");
       setTitle("");
       setDescription("");
       setDepartment("");

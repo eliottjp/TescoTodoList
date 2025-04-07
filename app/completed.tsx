@@ -12,6 +12,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "./src/utils/firebase";
 import { Task } from "./src/types/models";
 import { useRouter } from "expo-router";
+import dayjs from "dayjs"; // make sure you install dayjs or use native Date
 
 export default function CompletedTasks() {
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
@@ -23,10 +24,16 @@ export default function CompletedTasks() {
       const snapshot = await getDocs(
         query(collection(db, "tasks"), where("completed", "==", true))
       );
-      const tasks = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Task[];
+
+      const now = new Date();
+      const twoWeeksAgo = dayjs(now).subtract(14, "day").toDate();
+
+      const tasks = snapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() } as Task))
+        .filter(
+          (task) => task.completedAt && task.completedAt.toDate() >= twoWeeksAgo // Filter out older than 2 weeks
+        );
+
       setCompletedTasks(tasks);
       setLoading(false);
     };
@@ -42,7 +49,6 @@ export default function CompletedTasks() {
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{task.title}</Text>
         <Text style={styles.meta}>Department: {task.department}</Text>
-        <Text style={styles.meta}>Assigned To: {task.assignedTo}</Text>
       </View>
     </View>
   );
@@ -62,7 +68,9 @@ export default function CompletedTasks() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => renderTask(item)}
         ListEmptyComponent={
-          <Text style={styles.empty}>No completed tasks.</Text>
+          <Text style={styles.empty}>
+            No completed tasks in the last 2 weeks.
+          </Text>
         }
       />
 

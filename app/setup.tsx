@@ -4,10 +4,12 @@ import {
   View,
   Text,
   TextInput,
-  Button,
+  TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import {
   doc,
@@ -20,25 +22,20 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./src/utils/firebase";
+import Toast from "react-native-toast-message";
 
 export default function SetupPinScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
 
-  // Get the token from the URL
   const token =
     typeof params.token === "string" ? params.token : params.token?.[0];
 
   const [loading, setLoading] = useState(true);
   const [staffName, setStaffName] = useState("");
-  const [department, setDepartment] = useState("");
   const [pin, setPin] = useState("");
 
   useEffect(() => {
-    console.log("🔍 All Params:", params);
-    console.log("🔍 useEffect fired");
-    console.log("🧩 token param:", token);
-
     if (!token) {
       Alert.alert("Invalid Link", "Missing token.");
       router.replace("/login");
@@ -47,9 +44,6 @@ export default function SetupPinScreen() {
 
     const fetchPendingPin = async () => {
       try {
-        console.log("📡 Querying Firestore for token...");
-
-        // Find the document with the matching token field
         const q = query(
           collection(db, "pendingPins"),
           where("token", "==", token)
@@ -57,7 +51,6 @@ export default function SetupPinScreen() {
         const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
-          console.warn("❌ Token not found in pendingPins");
           Alert.alert("Invalid Link", "This setup link is no longer valid.");
           router.replace("/login");
           return;
@@ -67,13 +60,20 @@ export default function SetupPinScreen() {
         const data = docSnap.data();
 
         console.log("✅ Found pending staff:", data);
-        setStaffName(data.name);
-        setDepartment(data.department);
 
-        // Store doc ID globally so we can delete later
+        if (
+          !data?.name ||
+          !Array.isArray(data.departments) ||
+          data.departments.length === 0
+        ) {
+          throw new Error("Missing name or departments in Firestore doc");
+        }
+
+        setStaffName(data.name);
+        (globalThis as any)._pendingDepartments = data.departments;
         (globalThis as any)._pendingPinDocId = docSnap.id;
       } catch (err) {
-        console.error("🔥 Error fetching token:", err);
+        console.error("Error fetching token:", err);
         Alert.alert("Error", "Something went wrong.");
         router.replace("/login");
       } finally {
@@ -92,53 +92,60 @@ export default function SetupPinScreen() {
       return;
     }
 
-    try {
-      const staffId = token!;
+    if (!staffName || !(globalThis as any)._pendingDepartments) {
+      Alert.alert("Missing Info", "Staff info is missing.");
+      return;
+    }
 
-      // 🔍 Check if PIN is already used by another staff
+    try {
       const q = query(collection(db, "staff"), where("pin", "==", pin));
       const snapshot = await getDocs(q);
 
       if (!snapshot.empty) {
-        Alert.alert(
-          "PIN In Use",
-          "That PIN is already being used. Please choose a different one."
-        );
+        Toast.show({
+          type: "error",
+          text1: "PIN In Use",
+          text2: "That PIN is already being used 😬",
+        });
         return;
       }
 
-      // ✅ Save staff with PIN
-      await setDoc(doc(db, "staff", staffId), {
+      await setDoc(doc(db, "staff", token!), {
         name: staffName,
-        department,
+        departments: (globalThis as any)._pendingDepartments,
         pin,
         createdAt: serverTimestamp(),
       });
 
-      console.log("✅ PIN successfully set for staff:", staffId);
-
-      // 🧹 Clean up the token
       await deleteDoc(
         doc(db, "pendingPins", (globalThis as any)._pendingPinDocId)
       );
 
       Alert.alert("✅ PIN Set", "You can now log in.");
       router.replace("/login");
-    } catch (error) {
-      console.error("🔥 Error saving PIN:", error);
+    } catch (err) {
+      console.error("Error saving PIN:", err);
       Alert.alert("Error", "Could not save PIN.");
     }
   };
 
   if (loading) {
-    console.log("⏳ Still loading...");
-    return <ActivityIndicator size="large" style={{ flex: 1 }} />;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#ee1c2e" />
+      </View>
+    );
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       <Text style={styles.title}>Set Your PIN</Text>
-      <Text style={styles.subtitle}>Hi {staffName}! Choose a 6-digit PIN:</Text>
+      <Text style={styles.subtitle}>
+        Hi <Text style={styles.name}>{staffName}</Text>! Choose a 6-digit PIN:
+      </Text>
 
       <TextInput
         style={styles.input}
@@ -147,23 +154,67 @@ export default function SetupPinScreen() {
         value={pin}
         onChangeText={setPin}
         placeholder="Enter PIN"
+        placeholderTextColor="#aaa"
       />
 
-      <Button title="Save PIN" onPress={handleSubmit} />
-    </View>
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Save PIN</Text>
+      </TouchableOpacity>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
-  subtitle: { fontSize: 16, marginBottom: 20 },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#f9f9f9",
+    padding: 24,
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: "#00539f",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#444",
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  name: {
+    fontWeight: "bold",
+    color: "#00539f",
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
-    padding: 12,
-    fontSize: 20,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 18,
+    textAlign: "center",
+    letterSpacing: 4,
     marginBottom: 20,
-    borderRadius: 8,
+  },
+  button: {
+    backgroundColor: "#ee1c2e",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });

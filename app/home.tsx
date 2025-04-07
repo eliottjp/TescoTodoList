@@ -1,4 +1,4 @@
-import { useEffect, useState, useLayoutEffect } from "react";
+import { useEffect, useState, useLayoutEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  ToastAndroid,
 } from "react-native";
 import {
   collection,
@@ -14,7 +15,7 @@ import {
   updateDoc,
   doc,
   query,
-  where,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./src/utils/firebase";
 import { Task } from "./src/types/models";
@@ -22,6 +23,7 @@ import { useAuth } from "./src/context/AuthContext";
 import { useRouter, useNavigation } from "expo-router";
 import { FAB } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
+import Toast from "react-native-toast-message";
 
 export default function HomeScreen() {
   const { staff, logout } = useAuth();
@@ -30,6 +32,8 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const navigation = useNavigation();
+  const flatListRef = useRef<FlatList>(null);
+  const [prevTaskCount, setPrevTaskCount] = useState(0);
 
   useLayoutEffect(() => {
     if (staff?.role === "manager") {
@@ -45,58 +49,75 @@ export default function HomeScreen() {
           </View>
         ),
       });
+    } else {
+      navigation.setOptions({ headerRight: () => null });
     }
   }, [staff]);
 
   useEffect(() => {
-    if (!staff) return;
+    if (!staff || !Array.isArray(staff.departments)) return;
 
     const q = query(collection(db, "tasks"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const allTasks: Task[] = snapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() } as Task))
         .filter((task) => !task.completed);
+
+      if (allTasks.length > prevTaskCount && prevTaskCount > 0) {
+        Toast.show({
+          type: "success",
+          text1: "New task added",
+          text2: "Check your list for updates! 🚀",
+        });
+        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+      }
+
+      setPrevTaskCount(allTasks.length);
       setTasks(allTasks);
       setLoading(false);
     });
 
     return unsubscribe;
-  }, [staff]);
+  }, [staff?.departments]);
 
   const markComplete = async (taskId: string) => {
-    await updateDoc(doc(db, "tasks", taskId), { completed: true });
+    await updateDoc(doc(db, "tasks", taskId), {
+      completed: true,
+      completedAt: serverTimestamp(),
+    });
   };
 
-  const departmentTasks = tasks.filter(
-    (t) => t.department === staff?.department
+  const departmentTasks = tasks.filter((task) =>
+    staff?.departments?.includes?.(task.department)
   );
+
   const otherDepartmentTasks = tasks.filter(
-    (t) => t.department !== staff?.department
+    (task) => staff?.departments && !staff.departments.includes(task.department)
   );
-  const displayedTasks = showAllDepartments ? tasks : departmentTasks;
 
-  const renderTask = (task: Task) => {
-    return (
+  const displayedTasks =
+    showAllDepartments || staff?.role === "manager" ? tasks : departmentTasks;
+
+  const renderTask = (task: Task) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => router.push(`/task/${task.id}`)}
+    >
+      {task.imageUrl && (
+        <Image source={{ uri: task.imageUrl }} style={styles.thumbnail} />
+      )}
+      <View style={{ flex: 1 }}>
+        <Text style={styles.title}>{task.title}</Text>
+        <Text style={styles.meta}>Dept: {task.department}</Text>
+      </View>
       <TouchableOpacity
-        style={[styles.card]}
-        onPress={() => router.push(`/task/${task.id}`)}
+        style={styles.checkbox}
+        onPress={() => markComplete(task.id)}
       >
-        {task.imageUrl && (
-          <Image source={{ uri: task.imageUrl }} style={styles.thumbnail} />
-        )}
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{task.title}</Text>
-          <Text style={styles.meta}>Dept: {task.department}</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.checkbox}
-          onPress={() => markComplete(task.id)}
-        >
-          <Text style={styles.checkboxText}>✔</Text>
-        </TouchableOpacity>
+        <Text style={styles.checkboxText}>✔</Text>
       </TouchableOpacity>
-    );
-  };
+    </TouchableOpacity>
+  );
 
   if (loading)
     return (
@@ -118,6 +139,7 @@ export default function HomeScreen() {
       </View>
 
       <FlatList
+        ref={flatListRef}
         data={displayedTasks}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => renderTask(item)}
