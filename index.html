@@ -3,21 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-
-    <!-- manifest -->
-    <link rel="manifest" href="/public/manifest.json" />
-
-    <!-- Favicon -->
-    <link rel="icon" href="/public/icon-192.png" />
-
-    <!-- For iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="apple-touch-icon" href="/public/icon-192.png" />
-
-    <!-- Theme -->
-    <meta name="theme-color" content="#00539f" />
-
     <!-- 
       This viewport works for phones with notches.
       It's optimized for gestures by disabling global zoom.
@@ -25,6 +10,9 @@
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1.00001, viewport-fit=cover" />
+    {/* Link the PWA manifest file. */}
+    <link rel="manifest" href="/manifest.json" />
+
     <title>%WEB_TITLE%</title>
     <style>
       /**
