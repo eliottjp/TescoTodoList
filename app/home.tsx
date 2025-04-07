@@ -112,7 +112,7 @@ export default function HomeScreen() {
         <Text style={styles.meta}>Dept: {task.department}</Text>
         <Text style={styles.meta}>
           {task.createdAt
-            ? formatDistanceToNow(task.createdAt.toDate(), { addSuffix: true })
+            ? formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })
             : "Unknown time"}
         </Text>
       </View>
