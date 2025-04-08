@@ -19,7 +19,6 @@ import { db } from "./src/utils/firebase";
 import { Task } from "./src/types/models";
 import { useRouter } from "expo-router";
 import dayjs from "dayjs";
-import { formatDistanceToNow } from "date-fns";
 
 export default function CompletedTasks() {
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
@@ -56,11 +55,6 @@ export default function CompletedTasks() {
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{task.title}</Text>
         <Text style={styles.meta}>Department: {task.department}</Text>
-        <Text style={styles.meta}>
-          {task.createdAt
-            ? formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })
-            : "Unknown time"}
-        </Text>
       </View>
     </View>
   );
