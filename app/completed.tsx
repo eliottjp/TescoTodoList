@@ -10,9 +10,11 @@ import {
 } from "react-native";
 import {
   collection,
+  updateDoc,
   getDocs,
   query,
-  Timestamp,
+  doc,
+  serverTimestamp,
   where,
 } from "firebase/firestore";
 import { db } from "./src/utils/firebase";
@@ -46,6 +48,12 @@ export default function CompletedTasks() {
 
     fetchCompleted();
   }, []);
+  const undoComplete = async (taskId: string) => {
+    await updateDoc(doc(db, "tasks", taskId), {
+      completed: false,
+      completedAt: serverTimestamp(),
+    });
+  };
 
   const renderTask = (task: Task) => (
     <View style={styles.card}>
@@ -56,6 +64,12 @@ export default function CompletedTasks() {
         <Text style={styles.title}>{task.title}</Text>
         <Text style={styles.meta}>Department: {task.department}</Text>
       </View>
+      <TouchableOpacity
+        style={styles.checkbox}
+        onPress={() => undoComplete(task.id)}
+      >
+        <Text style={styles.checkboxText}>⬅️</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -143,5 +157,16 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontFamily: "Poppins_600SemiBold",
+  },
+  checkbox: {
+    backgroundColor: "#eee",
+    padding: 8,
+    borderRadius: 6,
+    marginLeft: 10,
+  },
+  checkboxText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2e7d32",
   },
 });
